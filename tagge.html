@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geotagging Photo App 2.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        #uploadForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        #uploadForm input {
+            margin-bottom: 10px;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+    <script>
+        let map;
+        let marker;
+
+        function initMap() {
+            const initialPosition = { lat: -34.397, lng: 150.644 };
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: initialPosition,
+                zoom: 8,
+            });
+
+            marker = new google.maps.Marker({
+                position: initialPosition,
+                map: map,
+                draggable: true,
+            });
+
+            google.maps.event.addListener(marker, 'dragend', function(event) {
+                document.getElementById('latitude').value = event.latLng.lat();
+                document.getElementById('longitude').value = event.latLng.lng();
+            });
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '100%';
+                    img.style.marginTop = '20px';
+                    document.getElementById('photoContainer').appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>Geotagging Photo App</h1>
+    <form id="uploadForm">
+        <input type="file" id="photoUpload" accept="image/*" onchange="handleFileUpload(event)">
+        <input type="text" id="latitude" placeholder="Latitude" readonly>
+        <input type="text" id="longitude" placeholder="Longitude" readonly>
+    </form>
+    <div id="map"></div>
+    <div id="photoContainer"></div>
+</body>
+</html>
